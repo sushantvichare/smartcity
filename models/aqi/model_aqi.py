@@ -1,72 +1,56 @@
-
 # aqi_prediction_model.py
 
 import pandas as pd
 import numpy as np
-
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-
 import joblib
+import os
 
 
 # ============================================================
 # 1. LOAD DATA
 # ============================================================
 
-FILE_PATH = "air_quality_historical.csv"
+FILE_PATH = r"G:\My Drive\Data Science\smartcity\data\aqi\air_quality_historical.csv"
 
-df = pd.read_csv(r"G:\My Drive\Data Science\smartcity\data\aqi\air_quality_historical.csv")
+df = pd.read_csv(FILE_PATH)
 
-# Convert date
+
+# ============================================================
+# 2. CONVERT DATE
+# ============================================================
+
 df["date"] = pd.to_datetime(
     df["date"],
     format="%d-%m-%Y",
     errors="coerce"
 )
 
-# Sort chronologically
-df = df.sort_values("date").reset_index(drop=True)
-
-
-# ============================================================
-# 2. SELECT AQI TARGET
-# ============================================================
-
-# We are predicting US AQI
-df = df[["date", "us_aqi"]].dropna()
+df = df.dropna(subset=["date", "us_aqi"])
 
 df = df.sort_values("date").reset_index(drop=True)
 
 
 # ============================================================
-# 3. CREATE TIME-SERIES FEATURES
+# 3. CREATE FEATURES USING ONLY DATE
 # ============================================================
 
-# Previous AQI values
-for lag in [1, 2, 3, 7, 14, 30]:
-    df[f"aqi_lag_{lag}"] = df["us_aqi"].shift(lag)
-
-
-# Rolling averages
-for window in [3, 7, 14, 30]:
-    df[f"aqi_rolling_{window}"] = (
-        df["us_aqi"]
-        .shift(1)
-        .rolling(window)
-        .mean()
-    )
-
-
-# Calendar features
 df["day"] = df["date"].dt.day
+
 df["month"] = df["date"].dt.month
+
 df["day_of_week"] = df["date"].dt.dayofweek
+
 df["day_of_year"] = df["date"].dt.dayofyear
+
 df["year"] = df["date"].dt.year
 
 
-# Seasonal features
+# ============================================================
+# 4. SEASONAL FEATURES
+# ============================================================
+
 df["doy_sin"] = np.sin(
     2 * np.pi * df["day_of_year"] / 365.25
 )
@@ -76,46 +60,29 @@ df["doy_cos"] = np.cos(
 )
 
 
-# Remove rows created by lag/rolling calculations
-df = df.dropna().reset_index(drop=True)
-
-
 # ============================================================
-# 4. FEATURES AND TARGET
+# 5. FEATURES AND TARGET
 # ============================================================
 
 FEATURES = [
-    "aqi_lag_1",
-    "aqi_lag_2",
-    "aqi_lag_3",
-    "aqi_lag_7",
-    "aqi_lag_14",
-    "aqi_lag_30",
-
-    "aqi_rolling_3",
-    "aqi_rolling_7",
-    "aqi_rolling_14",
-    "aqi_rolling_30",
-
     "day",
     "month",
     "day_of_week",
     "day_of_year",
     "year",
-
     "doy_sin",
     "doy_cos"
 ]
 
 X = df[FEATURES]
+
+# Dependent / target variable
 y = df["us_aqi"]
 
 
 # ============================================================
-# 5. TIME-BASED TRAIN/TEST SPLIT
+# 6. TIME-BASED TRAIN / TEST SPLIT
 # ============================================================
-
-# DO NOT randomly shuffle time-series data
 
 split_index = int(len(df) * 0.80)
 
@@ -127,7 +94,7 @@ y_test = y.iloc[split_index:]
 
 
 # ============================================================
-# 6. TRAIN RANDOM FOREST
+# 7. TRAIN RANDOM FOREST
 # ============================================================
 
 model = RandomForestRegressor(
@@ -138,18 +105,35 @@ model = RandomForestRegressor(
     n_jobs=-1
 )
 
-model.fit(X_train, y_train)
+model.fit(
+    X_train,
+    y_train
+)
 
 
 # ============================================================
-# 7. EVALUATE MODEL
+# 8. EVALUATE MODEL
 # ============================================================
 
 y_pred = model.predict(X_test)
 
-mae = mean_absolute_error(y_test, y_pred)
-rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-r2 = r2_score(y_test, y_pred)
+mae = mean_absolute_error(
+    y_test,
+    y_pred
+)
+
+rmse = np.sqrt(
+    mean_squared_error(
+        y_test,
+        y_pred
+    )
+)
+
+r2 = r2_score(
+    y_test,
+    y_pred
+)
+
 
 print("=" * 50)
 print("AQI MODEL PERFORMANCE")
@@ -161,80 +145,114 @@ print(f"R²   : {r2:.2f}")
 
 
 # ============================================================
-# 8. PREDICT AQI FOR A FUTURE DATE
+# 9. PREDICTION FUNCTION
 # ============================================================
 
-def predict_aqi(target_date, history):
+def predict_aqi(target_date):
     """
-    Predict AQI for a future date.
+    Predict AQI using ONLY the target date.
 
-    target_date : string/date
-    history     : DataFrame containing date and us_aqi
+    Parameters
+    ----------
+    target_date : str or datetime
+        Date for which AQI should be predicted.
+
+    Returns
+    -------
+    float
+        Predicted US AQI
     """
 
-    target_date = pd.to_datetime(target_date)
+    # --------------------------------------------------------
+    # Convert date
+    # --------------------------------------------------------
 
-    history = history.copy()
-    history["date"] = pd.to_datetime(history["date"])
+    target_date = pd.to_datetime(
+        target_date,
+        errors="coerce"
+    )
 
-    history = history.sort_values("date")
-
-    aqi_values = history["us_aqi"].dropna().tolist()
-
-    # Need at least 30 previous AQI values
-    if len(aqi_values) < 30:
+    if pd.isna(target_date):
         raise ValueError(
-            "At least 30 historical AQI records are required."
+            "Invalid date provided."
         )
 
-    # Previous AQI values
-    features = {}
 
-    features["aqi_lag_1"] = aqi_values[-1]
-    features["aqi_lag_2"] = aqi_values[-2]
-    features["aqi_lag_3"] = aqi_values[-3]
-    features["aqi_lag_7"] = aqi_values[-7]
-    features["aqi_lag_14"] = aqi_values[-14]
-    features["aqi_lag_30"] = aqi_values[-30]
+    # --------------------------------------------------------
+    # Create date features
+    # --------------------------------------------------------
 
-    # Rolling averages
-    features["aqi_rolling_3"] = np.mean(aqi_values[-3:])
-    features["aqi_rolling_7"] = np.mean(aqi_values[-7:])
-    features["aqi_rolling_14"] = np.mean(aqi_values[-14:])
-    features["aqi_rolling_30"] = np.mean(aqi_values[-30:])
+    day = target_date.day
 
-    # Date features
+    month = target_date.month
+
+    day_of_week = target_date.dayofweek
+
     day_of_year = target_date.dayofyear
 
-    features["day"] = target_date.day
-    features["month"] = target_date.month
-    features["day_of_week"] = target_date.dayofweek
-    features["day_of_year"] = day_of_year
-    features["year"] = target_date.year
+    year = target_date.year
 
+
+    # --------------------------------------------------------
     # Seasonal features
-    features["doy_sin"] = np.sin(
+    # --------------------------------------------------------
+
+    doy_sin = np.sin(
         2 * np.pi * day_of_year / 365.25
     )
 
-    features["doy_cos"] = np.cos(
+    doy_cos = np.cos(
         2 * np.pi * day_of_year / 365.25
     )
 
-    # Convert to DataFrame
-    input_data = pd.DataFrame([features])
 
-    # Make prediction
+    # --------------------------------------------------------
+    # Create prediction DataFrame
+    # --------------------------------------------------------
+
+    input_data = pd.DataFrame([
+        {
+            "day": day,
+            "month": month,
+            "day_of_week": day_of_week,
+            "day_of_year": day_of_year,
+            "year": year,
+            "doy_sin": doy_sin,
+            "doy_cos": doy_cos
+        }
+    ])
+
+
+    # --------------------------------------------------------
+    # Ensure exact training feature order
+    # --------------------------------------------------------
+
+    input_data = input_data[FEATURES]
+
+
+    # --------------------------------------------------------
+    # Predict
+    # --------------------------------------------------------
+
     prediction = model.predict(
-        input_data[FEATURES]
+        input_data
     )[0]
 
-    return round(prediction, 2)
+
+    return round(
+        float(prediction),
+        2
+    )
 
 
+# ============================================================
+# 10. SAVE MODEL
+# ============================================================
 
-
-
+os.makedirs(
+    "models",
+    exist_ok=True
+)
 
 joblib.dump(
     model,
@@ -242,5 +260,22 @@ joblib.dump(
 )
 
 print()
-print("Model saved as: aqi_prediction_model.pkl")
+print("Model saved as: models/aqi_prediction_model.pkl")
 
+
+# ============================================================
+# 11. TEST PREDICTION
+# ============================================================
+
+if __name__ == "__main__":
+
+    test_date = "21-08-2026"
+
+    prediction = predict_aqi(
+        test_date
+    )
+
+    print()
+    print(
+        f"Predicted AQI for {test_date}: {prediction}"
+    )
