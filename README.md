@@ -1,140 +1,128 @@
 # 🏙️ Smart City Intelligence Platform
 
-### An AI-Powered Urban Decision Support System
+### AI-Powered Urban Decision Support System for Mumbai
 
-[![Status](https://img.shields.io/badge/status-in%20development-yellow)]()
-[![License](https://img.shields.io/badge/license-MIT-blue)]()
-[![Made with](https://img.shields.io/badge/made%20with-AI%20%2B%20Data%20Science-brightgreen)]()
+An end-to-end **Data Science, Machine Learning, and Generative AI platform** designed to help monitor and predict key urban conditions such as **traffic congestion, air quality, and citizen satisfaction**.
 
----
-
-## 📌 Project Summary
-
-The **Smart City Intelligence Platform** is an AI-driven decision support system that helps city authorities **monitor, predict, and optimize** critical urban services using data science, machine learning, and geospatial analytics.
-
-The platform integrates data from:
-
-- 🚦 Traffic sensors
-- 🌦️ Weather reports
-- 🌫️ Air quality monitors
-- 🚌 Public transportation
-- ⚡ Energy usage
-- 🗑️ Waste management
-- 📢 Citizen complaints
-
-...to provide **real-time insights** and **future predictions**.
-
-Rather than solving a single problem, the platform offers a **unified dashboard** where city administrators can:
-
-- Monitor key performance indicators (KPIs)
-- Forecast future demand
-- Detect anomalies
-- Receive AI-generated recommendations for better urban planning and resource allocation
-
-**Examples of what the system can do:**
-
-- Predict traffic congestion during peak hours
-- Identify accident-prone locations
-- Forecast air pollution levels
-- Estimate waste collection requirements
-- Optimize emergency service deployment
-
-All within a single application.
+The platform combines machine learning models, historical city data, a RAG-based knowledge system, and an AI assistant into a unified **Streamlit dashboard**.
 
 ---
 
-## ❗ Problem Statement
+## 🚀 Project Overview
 
-Modern cities generate massive amounts of data, but it is often stored in isolated systems. As a result, city officials struggle to:
+Modern cities generate huge amounts of data from traffic systems, environmental sensors, and citizen services.
 
-- [ ] Predict traffic congestion
-- [ ] Manage waste efficiently
-- [ ] Monitor air quality
-- [ ] Allocate emergency resources
-- [ ] Plan infrastructure improvements
-- [ ] Respond proactively to citizen complaints
+However, this data is often isolated across different systems, making it difficult for city administrators to quickly understand what is happening and take proactive decisions.
 
-Most decisions are **reactive rather than data-driven**. The Smart City Intelligence Platform addresses this by combining multiple data sources into a centralized, AI-powered analytics platform.
+The **Smart City Intelligence Platform** brings these capabilities together into one application.
 
----
+### The platform can:
 
-## 🎯 Objectives
-
-The platform aims to:
-
-- 📈 Improve city planning through predictive analytics
-- 🧭 Optimize public resource allocation
-- 🚗 Reduce traffic congestion
-- 🌍 Improve environmental monitoring
-- 🚑 Support faster emergency response
-- 😊 Enhance citizen satisfaction
+- 🚦 Monitor and predict traffic congestion
+- 🌫️ Predict Air Quality Index (AQI)
+- 📢 Predict citizen satisfaction
+- 🤖 Answer natural-language questions using an AI assistant
+- 📚 Retrieve information from a Smart City knowledge base
+- 📊 Display city KPIs and analytics
+- 🔎 Provide data-driven insights for urban decision making
 
 ---
 
-## 🛠️ Tech Stack
+# ✨ Key Features
 
-> _Update this section with the actual technologies used in your implementation._
+## 🏠 Unified Dashboard
 
-| Layer              | Technology |
-| ------------------ | ---------- |
-| Frontend           | —          |
-| Backend            | —          |
-| Database           | —          |
-| ML / AI            | —          |
-| Data Visualization | —          |
-| Deployment         | —          |
+The Home dashboard provides a quick overview of the city's current status.
+
+### KPIs
+
+- Average traffic speed
+- Average traffic congestion
+- Average vehicle count
+- Predicted AQI
+- AQI category
+
+The dashboard also includes an integrated AI Assistant.
 
 ---
 
-## 📂 Project Structure
+## 🚦 Traffic Intelligence
 
-```
-smart-city-intelligence-platform/
-├── data/               # Raw and processed datasets
-├── models/             # ML models for prediction & forecasting
-├── src/                # Core application source code
-├── dashboard/          # Unified dashboard UI
-├── notebooks/          # Exploratory data analysis
-├── docs/                # Documentation
-└── README.md
+The Traffic module analyzes historical Mumbai traffic data.
+
+### Capabilities
+
+- Traffic volume analysis
+- Average speed analysis
+- Congestion analysis
+- Time-based traffic patterns
+- Area-based analysis
+- Traffic congestion prediction
+
+### Example AI Query
+
+```text
+What is the traffic condition in Andheri today?
 ```
 
----
+### AI Architecture
 
-## 🚀 Getting Started
+                         User Query
+                             │
+                             ▼
+                    ┌─────────────────┐
+                    │  Smart City AI  │
+                    │    Assistant    │
+                    └────────┬────────┘
+                             │
+                             ▼
+                       Query Router
+                             │
+             ┌───────────────┼───────────────┐
+             │               │               │
+             ▼               ▼               ▼
+         Traffic           AQI          Complaints
+             │               │               │
+             ▼               ▼               ▼
+        ML Model         ML Model        ML Model
+             │               │               │
+             └───────────────┼───────────────┘
+                             │
+                             ▼
+                       Response Formatter
+                             │
+                             ▼
+                      Friendly AI Response
 
-### Prerequisites
+### Stack
 
-- List required software/tools (e.g., Python 3.x, Node.js, etc.)
+| Category            | Technologies             |
+| ------------------- | ------------------------ |
+| Programming         | Python                   |
+| Data Processing     | Pandas, NumPy            |
+| Machine Learning    | Scikit-learn             |
+| ML Models           | Random Forest            |
+| AI / LLM            | LLM-based AI Assistant   |
+| RAG                 | Vector Store + Retrieval |
+| Dashboard           | Streamlit                |
+| Visualization       | Plotly                   |
+| Model Serialization | Joblib                   |
+| Data Storage        | CSV                      |
+| Version Control     | Git / GitHub             |
 
-### Installation
+### 💻 Running the Project
 
-```bash
-git clone https://github.com/your-username/smart-city-intelligence-platform.git
-cd smart-city-intelligence-platform
-# install dependencies
-```
+1. git clone https://github.com/sushantvichare/smartcity.git
 
-### Usage
+2. pip install -r requirements.txt
 
-```bash
-# run instructions here
-```
+3. Add data
+   data/
+   ├── aqi/
+   │ ├── air_quality_historical.csv
+   ├── traffic/
+   │ └── mumbai_traffic.csv
+   └── complaints/
+   └── bmc_complaints.csv
 
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request.
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
-
-## 📧 Contact
-
-For questions or collaboration opportunities, feel free to reach out.
+4. streamlit run src/app.py

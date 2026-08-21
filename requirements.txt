@@ -1,0 +1,35 @@
+# ============================================
+# Smart City Intelligence Platform
+# ============================================
+
+# Data Processing
+pandas>=2.2.0
+numpy>=1.26.0
+
+# Machine Learning
+scikit-learn>=1.5.0
+joblib>=1.4.0
+
+# Visualization
+plotly>=5.22.0
+
+# Streamlit Dashboard
+streamlit>=1.35.0
+
+# RAG / Embeddings
+sentence-transformers>=3.0.0
+faiss-cpu>=1.8.0
+
+# Environment Variables
+python-dotenv>=1.0.1
+
+# LLM / AI
+openai>=1.40.0
+
+# HTTP / API
+requests>=2.32.0
+
+# Optional: LangChain components if used by chatbot
+langchain>=0.2.0
+langchain-community>=0.2.0
+langchain-openai>=0.1.0
