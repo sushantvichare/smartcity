@@ -41,6 +41,5 @@ langchain-huggingface>=1.2.2
 
 # other dependencies
 ibis
-ibis-framework
-'ibis-framework[duckdb]'
+ibis-framework[duckdb]
 statsmodels
